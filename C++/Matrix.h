@@ -35,9 +35,9 @@ public:
     void rff(std::string);
     Matrix operator*(Matrix& b);
     void T();
-    Matrix swap_column( int J1, int J2);        //вопрос 1: файл уже достаточно разросся и актуальной становится проблема декомпозиции функций на отдельные
-    Matrix swap_row( int I1, int I2);           // подпрограммы - вопрос знатокам- как это делают нормальные люди? (ну например определение класса в хэдере
-    Matrix Gauss_method();                     // а имплементации функций в другом хедере) (как лучше?)
+    void swap_column( int J1, int J2);        //вопрос 1: файл уже достаточно разросся и актуальной становится проблема декомпозиции функций на отдельные
+    void swap_row( int I1, int I2);           // подпрограммы - вопрос знатокам- как это делают нормальные люди? (ну например определение класса в хэдере
+    void Gauss_method();                     // а имплементации функций в другом хедере) (как лучше?)
 
     void row_multiplication(int I, double numerator);
     void row_adition(int I1, int I2, double numerator);
@@ -72,6 +72,7 @@ void Matrix::print(){
 }
 
 void Matrix::rff(std::string path){
+    // Read From File function
     std::ifstream file;
     std::string st;
     int i=0, j=0;
@@ -134,11 +135,15 @@ Matrix operator*( Matrix A,double a) {
 }
 
 double det_2to2(Matrix& A){
+    // expression to find determinanto from 2x2 matrix.
     return A.get(0,0)*A.get(1,1) - A.get(0,1)*A.get(1,0);
 }
 
 Matrix Minor_Matrix(Matrix& A, int I, int J){
     // return Matrix with shape - one row one len
+    /*
+     *  return minor matrix - matrix produced from origin ones with remote selected row and col.
+     */
     Matrix result(A.height-1, A.width-1);
     int loop_i, loop_j;
     for(int i=0; i<A.height; i++){
@@ -167,6 +172,12 @@ double det(Matrix& A){
 }
 
 Matrix reverse(Matrix& A){
+    /*
+     *  function find reverse matrix to input A
+     *  A^-1 * A = A * A^-1 = E
+     *
+     *  A^-1 = 1/det(A) * matrix_transformed_algebraitic_adiction
+     */
     double denominator = det(A), loop_result;
     Matrix result(A.height, A.width);
     Matrix minor_matrix(A.height-1, A.width-1);
@@ -182,7 +193,10 @@ Matrix reverse(Matrix& A){
     return result;
 }
 
-Matrix Matrix::swap_column( int J1, int J2) {
+void Matrix::swap_column( int J1, int J2) {
+    /*
+     *  elementvise swap column between J1 and J2 troughout temporary variable
+     */
     double tmp;
     for(int i=0; i<height; i++){
         tmp = get(i, J1);
@@ -191,7 +205,10 @@ Matrix Matrix::swap_column( int J1, int J2) {
     }
 }
 
-Matrix Matrix::swap_row( int I1, int I2){
+void Matrix::swap_row( int I1, int I2){
+    /*
+     *  element vise swap two rows troughout third variable
+     */
     double tmp = 0;
     for(int j=0; j<width; j++){
         tmp = get(I1, j);
@@ -203,6 +220,7 @@ Matrix Matrix::swap_row( int I1, int I2){
 void Matrix::row_multiplication(int I, double numerator) {
     /*
      *  private method for gaus alghoritm
+     *  elementvesi multiplication elemenths to selected row
      */
     for(int j=0; j<width; j++){
         set(I, j, numerator * get(I, j));
@@ -212,22 +230,51 @@ void Matrix::row_multiplication(int I, double numerator) {
 void Matrix::row_adition(int I1, int I2, double numerator) {
     /*
      *  private method for Gauss alghoritm
+     *  It goal to elementvise addition one row to another one
+     *  from I1 to I2
      */
     for(int j=0; j<width; j++){
         set(I2, j, get(I2,j) + numerator * get(I1, j));
     }
 }
 
-Matrix Matrix::Gauss_method(){
+void Matrix::Gauss_method(){
     /*
+     *
+     *  TODO add english doc.
      *  последняя строка будет играть роль расширенной матрицы.
      *  тогда слау будет 3 уравнения 3 неизвестных будет представлена здесь как матрица 3 на 4
+     *
+     *  Да, тут реализован наиболее простой метод гауса который работает на заведомо лояльных
+     *  входных данных - определитель отличен от нуля, нет нулевых элементов, ранг основной
+     *  матрицы равен рангу расширенной матрицы. Just for learn goal
+     *
+     *  2.2 3.4 6.5 4
+     *  5.6 6.7 5.5 4   -даст ответ->  (-0.7697, 0.9136, 0.3980)
+     *  5 4 3 1
      */
 
-    for(int i=0; i<height; i++){
-        row_multiplication(i, 10);
-        print();
+    // прямой ход метода Гаусса
+    for(int j=0; j<width-1; j++ ){
+        for(int i=j; i<height; i++){
+            row_multiplication(i, 1./get(i,j));
+        }
+        for(int i=j+1; i<height; i++){
+            row_adition(j,i,-1);
+        }
     }
+    print();
+    // обратный ход метода Гаусса
+    for(int j=width-2; j>-1; j--){
+        for(int i=j-1; i>-1; i--){
+            row_multiplication(j, get(i,j));
+            row_adition(j,i, -1);
+            row_multiplication(j,1./get(j,j));
+        }
+    }
+
+
+
 
 
 }
