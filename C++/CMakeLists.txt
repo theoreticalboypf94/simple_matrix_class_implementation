@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.13)
-project(C__)
+project(second_try)
 
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_executable(C__
+add_executable( goal
         main.cpp
-        Matrix.h)
+        Matrix.h
+        Row.cpp
+        Matrix.cpp
+        README.md)
