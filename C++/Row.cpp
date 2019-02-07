@@ -58,18 +58,12 @@ void Matrix::Row::swap(Matrix::Row* first, Matrix::Row* second){
     *second = tmp;
 }
 
-void Normalization(Matrix::Row *row){
-    double denominator = 1.;
-    for(int j=0; j<row->width; j++){
-        if(row->operator[](j) != 0){
-            denominator = row->operator[](j);
-            break;
-        }
+Matrix::Row Matrix::Row::operator-(Matrix::Row other){
+    Row result(width);
+    for(int j=0; j<width; j++){
+        result[j] = this->operator[](j) - other[j];
     }
-
-    for(int j=0; j<row->width; j++){
-        *row = (*row) * (1./denominator);
-    }
+    return result;
 }
 
 void Matrix::Row::show() const{

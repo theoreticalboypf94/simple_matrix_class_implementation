@@ -21,26 +21,31 @@ public:
         friend Matrix::Row operator*(Matrix::Row row,double term);
         double& operator[](int);
         Row operator+(Row);
-        void swap(Row*, Row*);
+        Row operator-(Row);
+        static void swap(Row*, Row*);
         void show() const;
         int order_not_zero_element();
     private:
         std::vector<double> _column;
     };
 
+
     int height, width;
     Matrix(int, int);
     void rff(const std::string& path);
     void show() const;
     Matrix::Row& operator[] (int);
+    Matrix& operator^(int power);
     Matrix M(int, int); // Matrix Minor
     Matrix T();                         //this transform can change shepe
-
-
 
 private:
     std::vector<Row> _row;
 };
+double det(Matrix);
+Matrix Gauss_method(Matrix &);
+void Normalization(Matrix::Row*);
+double det2to2(Matrix);
 
 #endif //C_MATRIX_H
 

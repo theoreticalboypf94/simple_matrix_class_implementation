@@ -2,7 +2,12 @@
 // Created by alpharius on 05.02.19.
 //
 
+#ifndef MATRIXCPP
+#define MATRIXCPP
+
 #include "Matrix.h"
+
+
 
 Matrix::Matrix(int _height, int _width) {
     height = _height;
@@ -30,6 +35,7 @@ void Matrix::show() const {
     for(int i=0; i<height; i++){
         _row[i].show();
     }
+    std::cout << std::endl;
 }
 
 Matrix::Row& Matrix::operator[](int i) {
@@ -61,4 +67,34 @@ Matrix Matrix::T(){
     }
     return result;
 }
+
+Matrix operator*(Matrix A, float term){
+    for(int i=0; i<A.width; i++){
+        for(int j=0; j<A.height; j++){
+            A[i][j] = A[i][j] * term;
+        }
+    }
+    return A;
+}
+
+Matrix&  Matrix::operator^(int power) {
+    Matrix result(height, width);
+    std::cout << "HERE";
+    if(power == -1){
+        std::cout << "calculate reverse matrix";
+        double reverse_det = 1./det(*this);
+        auto F = [](int i) {return (i%2 == 0)? 1 : -1;};
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
+                result[i][j] = F(i+j) * det(this->M(i,j));
+            }
+        }
+
+        result = result * reverse_det;
+        result = result.T();
+    }
+    return result;
+}
+
+#endif
 

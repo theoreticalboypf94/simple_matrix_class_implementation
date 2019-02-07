@@ -27,8 +27,49 @@ double det(Matrix A){
     return result;
 }
 
-Matrix Gauss_method(Matrix A){
+void Normalization(Matrix::Row *row){
+    double denominator = 0.;
+    for(int j=0; j<row->width; j++){
+        if(row->operator[](j) != 0){
+            //denominator = row->operator[](j);
+            denominator = (*row)[j];
+            break;
+        }
+    }
+    if (denominator == 0){
+        std::cout <<"Normalization: all elements equal to zero" << std::endl;
+    } else {
+        *row = (*row) * (1. / denominator);
+    }
+}
 
+Matrix Gauss_method(Matrix &A){         //TODO проверить по производительности выполнение метода Гаусса, с сылкой и без нее
+    assert(A.height == A.width-1); //простейший метод гаусса
+    for(int i=0; i<A.height; i++){
+        if (i != A[i].order_not_zero_element()){
+            std::cout << "faced with bad situation, need to swap rows";
+            for(int ii=i; ii<A.height; ii++){
+                if (A[ii].order_not_zero_element() == i){
+                    Matrix::Row::swap(&A[i], &A[ii]);           //невозможна ситуалция с тотально нулевыми элементами ниже - потеря единственности решения, формируется ФСР
+                }
+            }
+        }
+        //прямой ход метода гаусса
+        Normalization(&A[i]);
+        for(int ii=i+1; ii<A.height; ii++){
+            Normalization(&A[ii]);
+            if (A[ii].order_not_zero_element() == i)
+                A[ii] = A[ii] - A[i];
+        }
+    }
+
+    // обратный ход метода гаусса
+    for(int i=A.height-1; i>=0; i--){
+        for(int ii=i-1; ii>=0; ii--){
+            A[ii] = A[ii] - A[i] * A[ii][i];
+        }
+    }
+    return A;
 }
 
 

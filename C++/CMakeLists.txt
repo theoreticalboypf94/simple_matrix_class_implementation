@@ -8,6 +8,7 @@ include_directories(.)
 add_executable( goal
         main.cpp
         Matrix.h
+        Math_external.cpp
         Row.cpp
         Matrix.cpp
         README.md)
