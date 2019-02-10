@@ -1,5 +1,27 @@
+import time
+
+def time_measure(fun):
+    """
+    Декоратор, для измерения времени выполнения функции в наносекундах.
+    :param fun:
+    :return:
+    """
+
+    def wrap(*args, **kwargs):
+        a = time.time()
+        result = fun(*args, **kwargs)
+        print(10**9 * (time.time() - a), " ns")
+        return result
+    return wrap
 
 class Matrix:
+    """
+    Класс реализующий матрицу и все ее операции (кроме отыскания собственного вектора, и собственного значения)
+    они будут реализованны позже.
+
+    TODO во второй реализации применить распаралеливание.
+
+    """
 
     def __init__(self, a, b=None):
         """
@@ -22,7 +44,15 @@ class Matrix:
             self.column = len(a[0])
             self._arr = a
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key : tuple, value):
+        """
+        :param key: tuple
+        :param value:
+        :return:
+
+        позволяет передавать в матрицу значение a[i,j] = value
+        i,j - key
+        """
         x, y = key
         self._arr[x][y] = value
 
@@ -49,7 +79,7 @@ class Matrix:
                 result[i,j] = self._arr[i][j] + other[i,j]
         return result
 
-    def Minor(self, I, J):
+    def Minor(self, I : int, J : int):
         minor = Matrix(self.row-1, self.column-1)
         for i in range(self.row):
             for j in range(self.column):
@@ -59,6 +89,11 @@ class Matrix:
         return minor
 
     def __mul__(self, other):
+        """
+        Проведение матричного и скалярного умножения над матрицей.
+        :param other:
+        :return:
+        """
         if type(other) != Matrix:
             for i in range(self.row):
                 for j in range(self.column):
@@ -84,12 +119,17 @@ class Matrix:
         return self.__mul__(other)
 
     def T(self):
+        """
+        орнрпция транспонирования матрицы.
+        :return:
+        """
         result = Matrix(self.column, self.row)
         for i in range(self.row):
             for j in range(self.column):
                 result[j,i] = self.__getitem__((i,j))
         return result
 
+    @time_measure
     def __pow__(self, power):
         if power == -1:
             assert (det(self) != 0)
@@ -130,9 +170,9 @@ def det_2_to_2(A: Matrix) -> float:
     return A[0,0]*A[1,1] - A[1,0]*A[0,1]
 
 
+
 if __name__ == "__main__":
     #test area
-
     print("proof addition ")
     A = Matrix([[-11,2],[3,4]])
     B = Matrix([[1,2],[3,4]])
@@ -172,7 +212,8 @@ if __name__ == "__main__":
 
     print(A * A**-1)
     print(A**-1 * A)
-    print(A**-1)
+    A**-1
+
 
 
 
