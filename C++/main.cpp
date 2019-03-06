@@ -14,9 +14,8 @@ int main(){
     A.rff("../4x4.txt");
     B.rff("../4x4.txt");
     A.show();
-    B.show();
-    A = A^-1;
-    //A.show();
+    A = A * 7;
+    A.show();
 
     return 0;
 }
