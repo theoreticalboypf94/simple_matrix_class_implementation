@@ -5,6 +5,10 @@
 int main() {
     std::cout << "Hello, World!" << std::endl;
     Matrix b(4,4,TRIANGLE_TOP), a(4,4,RND);
-    //printf("%d",b.row.row.size());
+    a.Print();
+    std::string path = "../out.txt";
+    a.wtf(path);
+
+
     return 0;
 }

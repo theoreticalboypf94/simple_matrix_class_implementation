@@ -162,7 +162,7 @@ void Matrix::Print() const {
 void Matrix::rff(const std::string &path) {
     std::ifstream file;
     file.open(path);
-    assert(!file.is_open());
+    assert(file.is_open());
     _matrix.clear();         // не важно какой у нас была матрица. она изменит размерж
 
     std::string point;
@@ -171,8 +171,65 @@ void Matrix::rff(const std::string &path) {
     file >> point;
     width = std::stoul(point);
 
+    int counter = 0;
     while(!file.eof()){
-        NULL;                                               // TODO  <<<<-----------остановился здесь
+        file >> point;
+        ACCESS(counter/width, counter % width);
+        counter += 1;
     }
+    file.close();
+}
 
+void Matrix::wtf(const std::string &path) const {
+    // write to file
+    std::ofstream file;
+    file.open(path);
+    assert(file.is_open());
+    file << height << std::endl;
+    file << height << std::endl;
+    LOOP(height, width, file << ACCESS(i,j) << " ", file << std::endl);
+    file.close();
+}
+
+                                    /* математические функции */
+
+double det2x2(Matrix &m){
+    assert(m.height == m.width);
+    assert(m.height == 2);
+    return m[0][0] * m[1][1] - m[1][0] * m[0][1];
+}     // промежуточная функция
+
+Matrix Matrix::Minor(int _i, int _j) {
+    assert(height >= 2 and width >= 2);
+    Matrix result(height-1, width-1, ZEROS);
+    int internal_i, internal_j;
+    LOOP(height, width,
+            internal_i = (i<_i) ? i : i-1;
+            internal_j = (j<_j) ? j : j-1;
+            result[internal_i][internal_j] = ACCESS(i,j);,
+
+            NULL
+    );
+    return result;
+}
+
+double det(Matrix &&m) {
+    assert(m.height == m.width);
+    double result = 0;
+    auto lambda = [] (int n) {return (n%2 == 0) ? 1 : -1;};
+    if (m.height == 2)
+        result = det2x2(m);
+    else {
+        for (size_t j = 0; j < m.width; j++) {
+            result += m[0][j] * det(m.Minor(0, j)) * lambda(j);
+        }
+    }
+    return result;
+}
+
+void Statistical_Information(Matrix& m){
+    // тут совершенно простая стат обработка, ничего особенного
+    double mean;
+    LOOP(m.height, m.width, mean += m[i][j], NULL);
+    std::cout << "mean number =" << mean/(m.height * m.width);
 }

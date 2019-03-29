@@ -60,12 +60,13 @@ public:
     /* вспомогательные функции */
     void Print() const;
     void rff(const std::string& path);
-    void rtf(const std::string& path) const;
+    void wtf(const std::string& path) const;
 
     /* математические функции */
-    friend double det(const Matrix& m);
-    friend double Gaus_Alghoritm(Matrix& m);
-    friend void Statistical_Information();
+    Matrix Minor(int i, int j);
+    friend double det(Matrix&& m) ;               // обдумать этот момент, так чтобы абузить [][]
+    friend double Gaus_Alghoritm(Matrix& m);        //TODO - доделать
+    friend void Statistical_Information(Matrix& m);
 
 private:
     std::vector<Row> _matrix;
