@@ -1,21 +1,10 @@
-//
-// Created by alpharius on 05.02.19.
-//
-#include "Matrix.h"
 #include <iostream>
-//#include "Math_external.cpp"
+#include "Matrix.h"
+#include <cstdio>
 
-// остановился на методе гауса и функции order_not_zero_element
-// которая будет считать позиции до первого не нулевого элемента
-
-
-int main(){
-    Matrix A(3,3), B(3,3);
-    A.rff("../4x4.txt");
-    B.rff("../4x4.txt");
-    A.show();
-    A = A * 7;
-    A.show();
-
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    Matrix b(4,4,TRIANGLE_TOP), a(4,4,RND);
+    //printf("%d",b.row.row.size());
     return 0;
 }

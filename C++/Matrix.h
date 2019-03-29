@@ -1,58 +1,75 @@
-//
-// Created by alpharius on 05.02.19.
-//
+/*
+ *  Написано "Во славу Себе и на благо Отечества" (Макиавелли)
+ *
+ *
+ *  Какую матрицу мы хотим:
+ *  Конструкторы - разнообразные допускающие различное формирование
+ *  Matrix(height, width, MOD : enumerate, )
+ *
+ *  не плохо бы еще визуализацию сделать
+ *
+ */
 
 #ifndef C_MATRIX_H
 #define C_MATRIX_H
-#include <vector>
-#include <fstream>
-#include <string>
+
 #include <iostream>
+#include <vector>
+#include <string>
+#include <random>
+#include <time.h>
+#include <fstream>
+
+
+enum MOD {
+    RND,
+    ZEROS,
+    ONES,
+    TRIANGLE_TOP,
+    DIAG
+};
 
 class Matrix {
 public:
+
     class Row{
     public:
-        int width;
-
-        Row(int);
-        double operator*(Row);
-        friend Matrix::Row operator*(double term, Matrix::Row row);
-        friend Matrix::Row operator*(Matrix::Row row,double term);
-        double& operator[](int);
-        Row operator+(Row);
-        Row operator-(Row);
-        static void swap(Row*, Row*);
-        void show() const;
-        int order_not_zero_element();
-    private:
-        std::vector<double> _column;
+        std::vector<double> row;
+        Row(size_t len){ row.resize(len);};
+        double& operator[](int j) {return (j>=0)? row.at(j) : row.at(row.size() - j - 1);} // чтобы было как в питоне
     };
 
+    size_t height, width;
+    /* конструкторы и деструктор*/
+    Matrix();
+    Matrix(size_t h, size_t w, MOD mod);  // задаем размер и способ заполнения
+    Matrix(const std::string &path);               // считываем из указанного файла
+    Matrix(const Matrix& other);                                // конструктор копирования
+    //Matrix()          //TODO добавить конструктор через { {} {} }
+    ~Matrix() {};       // ТОДО надо сделать когда буду алоцировать память
 
-    int height, width;
-    Matrix(int, int);
+    /* операции */
+    Matrix operator+(const Matrix&) const;
+    Matrix operator-(const Matrix&) const;
+    Matrix operator*(Matrix&) const;
+    Matrix operator^(int);
+    Matrix& operator=(const Matrix&);
+    Row& operator[](int row);
+
+    friend Matrix operator*(double num, Matrix& m);
+    /* вспомогательные функции */
+    void Print() const;
     void rff(const std::string& path);
-    void show() const;
-    Matrix::Row& operator[] (int);
-    Matrix& operator^(int power);
-    Matrix M(int, int); // Matrix Minor
-    Matrix T();                         //this transform can change shepe
+    void rtf(const std::string& path) const;
+
+    /* математические функции */
+    friend double det(const Matrix& m);
+    friend double Gaus_Alghoritm(Matrix& m);
+    friend void Statistical_Information();
 
 private:
-    std::vector<Row> _row;
+    std::vector<Row> _matrix;
 };
-double det(Matrix);
-Matrix Gauss_method(Matrix &);
-void Normalization(Matrix::Row*);
-double det2to2(Matrix);
+
 
 #endif //C_MATRIX_H
-
-//
-////это  просто полигон того как проходит наследование классов и конструкторов - практической ценности не имеет
-//class Row2 : public Row{
-//public:
-//    std::string g = "glory to respublic";
-//    Row2(int a) : Row( a) {};
-//};

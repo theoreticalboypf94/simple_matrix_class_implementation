@@ -1,100 +1,178 @@
 //
-// Created by alpharius on 05.02.19.
+// Created by alpharius on 29.03.19.
 //
 
-#ifndef MATRIXCPP
-#define MATRIXCPP
-
+#include <assert.h>
 #include "Matrix.h"
 
+#define ACCESS(i,j) _matrix[ i ].row[ j ]
+#define LOOP(up1, up2, expression1, expression2)    for(size_t i=0; i<up1; i++) {\
+                                                        for(size_t j=0; j<up2; j++){\
+                                                            expression1;\
+                                                        }\
+                                                    expression2;\
+                                                    }\
 
+                                    /* конструкторы */
 
-Matrix::Matrix(int _height, int _width) {
-    height = _height;
-    width = _width;
-    _row.assign(height,Row(width));
+Matrix::Matrix(size_t h, size_t w, MOD mod){
+    srand(time(NULL));
+    for(size_t i=0; i<h; i++){
+        _matrix.push_back(Row(w));
+    }
+    height = h;
+    width = w;
+
+    switch (mod){
+        case RND:
+            LOOP(height, width, ACCESS(i,j) = rand() % 100, NULL)
+            break;
+        case ZEROS:
+            LOOP(height, width, ACCESS(i,j) = 0, NULL);
+            break;
+        case ONES:
+            LOOP(height, width, ACCESS(i,j) = 1, NULL);
+            break;
+        case DIAG:
+            LOOP(height, width, ACCESS(i,j) = (i==j) ? rand() % 100 : 0, NULL);
+            break;
+        case TRIANGLE_TOP:
+            LOOP(height, width, ACCESS(i,j) = (i<=j) ? rand() % 100 : 0, NULL);
+            break;
+    }
 }
 
-void Matrix::rff(const std::string& path){
-    std::fstream file;
+Matrix::Matrix(const std::string &path) {
+    // конструктор, считывания параметров матрицы и самой матрицы из текстового файла,
+    // первые 2 числа в файле отвечают за число строк и столбцов считываемой матрицы.
+
+
+    std::ifstream file;
     file.open(path);
-    if(file.is_open()){
-        std::string loop;
-        for(int i=0; i<height; i++){
-            for(int j=0; j<width; j++){
-                file >> loop;
-                _row[i][j] = std::stod(loop);
-            }
-        }
-    } else {
-        std::cout << "ERROR can't open file";
+    assert(file.is_open());
+    std::string point;
+    file >> point;
+    height = std::stoul(point);
+    file >> point;
+    width = std::stoul(point);
+    int counter = 0;
+    while(!file.eof()){
+        file >> point;
+        ACCESS(counter/width,counter % width ) = std::stod(point);   //TODO провести проверку правильности
+        counter += 1;
     }
+    file.close();
 }
 
-void Matrix::show() const {
-    for(int i=0; i<height; i++){
-        _row[i].show();
+Matrix::Matrix(const Matrix &other) {
+    // пока конструкторо копирования не нужен, в том смысле что мои потребности удовлетворяются
+    // конструктором-копирования по умолчанию, но в будущем возможно я добавлю указатели и тогда такой конструктор
+    // станет необходим, здесь я по сути воспроизведу конструктор по умолчанию.
+
+    std::cout << std::endl << " Copy constructor is launched! \n";
+    height = other.height;
+    width = other.width;
+    LOOP(height, width, ACCESS(i,j) = other._matrix[i].row[j], NULL);
+}
+
+Matrix::Matrix() { Matrix(1,1,ZEROS);}
+
+                                    /* операции */
+
+Matrix Matrix::operator+(const Matrix &other) const {
+    // проведение доступа через макросы это конечно не эстетично, но оператор [][] я пока не перегрузил, так
+    // что читатель, не сердись.
+
+    assert(other.height == height);
+    assert(other.width == width);
+    Matrix result(other.height, other.width, ZEROS);
+    LOOP(height, width, result.ACCESS(i,j) = ACCESS(i,j) + other.ACCESS(i,j), NULL);
+    return result;
+}
+
+Matrix Matrix::operator-(const Matrix &other) const {
+    assert(other.height == height);
+    assert(other.width == width);
+    Matrix result(other.height, other.width, ZEROS);
+    LOOP(height, width, result.ACCESS(i,j) = ACCESS(i,j) - other.ACCESS(i,j), NULL);
+    return result;
+}
+
+Matrix::Row& Matrix::operator[](int row) {
+    return _matrix[row];
+}
+
+Matrix Matrix::operator*( Matrix &other) const{
+    assert(width == other.height);
+    Matrix result(height, other.width, ZEROS);
+    double convolution = 0;
+
+    LOOP(height, other.width,
+            for(size_t k=0; k<width; k++){
+                convolution += ACCESS(i,k) * other[k][j];
+            }
+                result[i][j] = convolution;
+                convolution = 0;,
+
+                NULL
+        )
+    return result;
+}
+
+Matrix operator*(double n, Matrix& m){
+    Matrix result(m.height, m.width, ZEROS);
+    LOOP(m.height, m.width, result[i][j] = n * m[i][j], NULL);
+    return result;
+}
+
+Matrix& Matrix::operator=(const Matrix &rvalue) {
+    _matrix.clear();
+    width = rvalue.width;
+    height = rvalue.height;
+    for(Row rows : rvalue._matrix){
+        _matrix.push_back(rows);
     }
+    return *this;
+}
+
+Matrix Matrix::operator^(int power) {
+    // операция возведения в степень пока определена только для целых и положительных чисел
+    // TODO добавить возведение в -1 степень - как обратную матрицу.
+
+    Matrix result(height,width, ONES);
+    if (power == 1)
+        return result;
+    else {
+        Matrix result(height,width, ZEROS);
+        while(power > 0){
+            result = result * (*this);
+        }
+    }
+    return result;
+}
+
+
+                                    /* вспомогательные функции */
+
+void Matrix::Print() const {
+    LOOP(height,width, std::cout << ACCESS(i,j) << "| ", std::cout << std::endl;)
     std::cout << std::endl;
 }
 
-Matrix::Row& Matrix::operator[](int i) {
-    return _row[i];
-}
+void Matrix::rff(const std::string &path) {
+    std::ifstream file;
+    file.open(path);
+    assert(!file.is_open());
+    _matrix.clear();         // не важно какой у нас была матрица. она изменит размерж
 
-Matrix Matrix::M(int I, int J){
-    Matrix result(width-1, height-1);
-    int index1, index2;
-    for(int i=0; i<height; i++){
-        for(int j=0; j<width; j++){
-            index1 = (i < I)? i : i-1;
-            index2 = (j < J)? j : j-1;
+    std::string point;
+    file >> point;
+    height = std::stoul(point);
+    file >> point;
+    width = std::stoul(point);
 
-            if (i!=I && j!=J){
-                result[index1][index2] = _row[i][j];
-            }
-        }
+    while(!file.eof()){
+        NULL;                                               // TODO  <<<<-----------остановился здесь
     }
-    return result;
+
 }
-
-Matrix Matrix::T(){
-    Matrix result(width, height);
-    for(int i=0; i<height; i++){
-        for(int j=0; j<width; j++){
-            result[j][i] = _row[i][j];
-        }
-    }
-    return result;
-}
-
-Matrix operator*(Matrix A, float term){
-    for(int i=0; i<A.width; i++){
-        for(int j=0; j<A.height; j++){
-            A[i][j] = A[i][j] * term;
-        }
-    }
-    return A;
-}
-
-Matrix&  Matrix::operator^(int power) {
-    Matrix result(height, width);
-    std::cout << "HERE";
-    if(power == -1){
-        std::cout << "calculate reverse matrix";
-        double reverse_det = 1./det(*this);
-        auto F = [](int i) {return (i%2 == 0)? 1 : -1;};
-        for(int i=0; i<height; i++){
-            for(int j=0; j<width; j++){
-                result[i][j] = F(i+j) * det(this->M(i,j));
-            }
-        }
-
-        result = result * reverse_det;
-        result = result.T();
-    }
-    return result;
-}
-
-#endif
-
