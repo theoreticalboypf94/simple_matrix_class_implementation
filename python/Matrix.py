@@ -47,7 +47,7 @@ class Row:
         return self * other
 
     def __xor__(self, other):
-        # NB this is dot product of 2 row-vector
+        # NB this is dot product of 2 row-vector ^
         assert(len(self) == len(other))
         result = 0.
         for i,j in zip(self, other):
@@ -183,6 +183,11 @@ class Matrix:
                 result[j][i] = self[i][j]
         return result
 
+    def swap_two_rows(self, i, j):
+        for k in range(self.columns):
+            self[i][k], self[j][k] = self[j][k], self[i][k]
+
+
 
 
     # simple factory method using for initialization of matrix in different way
@@ -203,11 +208,12 @@ class Matrix:
             result[i][i] = 1
         return result
 
-    @classmethod
+    @classmethod        #TODO доделать этот конструктор
     def create_RND_matrix(cls, row, col):
         result = cls(row,col)
         for i in range(row):
             for j in range(col):
+                pass
 
 
 def det2x2(m: Matrix) -> float:
